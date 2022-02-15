@@ -38,6 +38,7 @@ export const useMainStore = defineStore('main', {
     // 方式二：可以手动指定返回值的类型
     count10(): number {
       console.log('count10 调用了')
+      // 也可以直接访问自己store中的其它getters，如this.count10
       return this.count + 10
     },
   },
