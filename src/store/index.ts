@@ -12,13 +12,19 @@ export const useMainStore = defineStore('main', {
    * 必须是函数：这样是为了在服务端渲染的时候避免交叉请求导致的数据状态污染
    * 必须是箭头函数，这是为了更好的 TS 类型推导
    */
-  state: () => {
-    return {
-      count: 100,
-      foo: 'bar',
-      arr: [1, 2, 3],
-    }
-  },
+  // state: () => {
+  //   return {
+  //     count: 100,
+  //     foo: 'bar',
+  //     arr: [1, 2, 3],
+  //   }
+  // },
+  // 简写方式
+  state: () => ({
+    count: 100,
+    foo: 'bar',
+    arr: [1, 2, 3],
+  }),
   /**
    * 类似于组件的 computed，用来封装计算属性，有缓存的功能
    */
@@ -33,7 +39,7 @@ export const useMainStore = defineStore('main', {
     count10(): number {
       console.log('count10 调用了')
       return this.count + 10
-    }
+    },
   },
   /**
    * 类似于组件的 methods，封装业务逻辑，修改 state
