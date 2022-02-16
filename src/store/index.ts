@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useDefaultStore } from "./default";
 
 /**
  * 1. 定义并导出容器
@@ -41,6 +42,15 @@ export const useMainStore = defineStore('main', {
       // 也可以直接访问自己store中的其它getters，如this.count10
       return this.count + 10
     },
+    addCount(state) {
+      // 给getter传递参数
+      return (payload: number) => state.count + payload
+    },
+    // 引用其它store的数据
+    addDefault(state) {
+      const store = useDefaultStore()
+      return state.count + store.calcTime;
+    }
   },
   /**
    * 类似于组件的 methods，封装业务逻辑，修改 state

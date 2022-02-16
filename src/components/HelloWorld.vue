@@ -5,9 +5,12 @@
   <hr />
   <p>{{ count }}</p>
   <p>{{ foo }}</p>
+  <!-- getter取值会有缓存，这里取了三次，但打印只有一次 -->
   <p>{{ mainStore.count10 }}</p>
   <p>{{ mainStore.count10 }}</p>
   <p>{{ mainStore.count10 }}</p>
+  <p>{{ mainStore.addCount(2) }}</p>
+  <p>{{ mainStore.addDefault }}</p>
 
   <div>
     <button @click="handleChangeState">修改数据</button>
