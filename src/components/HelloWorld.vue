@@ -11,17 +11,22 @@
   <p>{{ mainStore.count10 }}</p>
   <p>{{ mainStore.addCount(2) }}</p>
   <p>{{ mainStore.addDefault }}</p>
-
   <div>
     <button @click="handleChangeState">修改数据</button>
   </div>
+
+  <h3>DefaultStore</h3>
+  <p>{{ defaultStore.count }}</p>
+  <button @click="defaultStore.addCount(4)">点击</button>
 </template>
 
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
 import { useMainStore } from '../store'
+import { useDefaultStore } from '../store/default'
 
 const mainStore = useMainStore()
+const defaultStore = useDefaultStore()
 // 这是有问题的，因为这样拿到的数据不是响应式的，是一次性的
 // Pinia 其实就是把 state 数据都做了 reactive 处理了
 // const { count, foo } = mainStore
