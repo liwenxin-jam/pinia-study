@@ -12,13 +12,22 @@ export const useBrandStore = defineStore('brand', {
       id: '',
       name: '',
       ctime: new Date().toLocaleDateString()
-    } // 双向绑定字段
+    }, // 双向绑定字段
+    keyword: '', // 搜索关键词
   }),
   // 声明getters
+  getters: {
+    // 模糊搜索列表
+    searchResult(state) {
+      return state.brandList.filter(item => item.name.includes(state.keyword))
+    }
+  },
   // 声明actions
   actions: {
+    /**
+     * @desc 新增品牌
+     */
     addBrand() {
-      console.log(1111);
       // 1. 把state定义的brand push brandList
       this.brandList.push(this.brand)
 
@@ -28,6 +37,13 @@ export const useBrandStore = defineStore('brand', {
         name: '',
         ctime: new Date().toLocaleDateString()
       }
+    },
+    /**
+     * 删除品牌
+     * @param id 唯一编号
+     */
+    delBrand(id: string) {
+      this.brandList = this.brandList.filter(item => item.id !== id)
     }
   }
 })

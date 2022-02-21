@@ -24,7 +24,7 @@
 
         <div class="input-group pull-right">
           <div class="input-group-addon">按名称搜索</div>
-          <input type="text" class="form-control">
+          <input type="text" class="form-control" v-model="keyword">
         </div>
       </div>
     </div>
@@ -39,12 +39,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in brandList" :key="item.id">
+        <tr v-for="item in searchResult" :key="item.id">
           <td>{{ item.id }}</td>
           <td>{{ item.name }}</td>
           <td>{{ item.ctime }}</td>
           <td>
-            <a href="#">删除</a>
+            <a href="#" @click="delBrand(item.id)">删除</a>
           </td>
         </tr>
       </tbody>
@@ -56,8 +56,8 @@
 import { storeToRefs } from "pinia"
 import { useBrandStore } from "../store/brandStore"
 
-const { brandList, brand } = storeToRefs(useBrandStore())
-const { addBrand } = useBrandStore()
+const { brandList, brand, keyword, searchResult } = storeToRefs(useBrandStore())
+const { addBrand, delBrand } = useBrandStore()
 </script>
 
 <style scoped>
