@@ -40,3 +40,12 @@ storeToRefs
      - defineReactive(Object.defineProperty) 
      - walk(Object.keys和forEach)
    - 静态标记
+     - 二进制 位运算 2 4 8 16 32
+   - Fragment、Suspense(传送门)
+     - 允许多个根节点(v-model也允许绑定多个)
+   - render
+     - 支持JSX写法
+   - treeShaking优化
+     - 减少打包项
+   - Hooks
+     - setup语法糖
