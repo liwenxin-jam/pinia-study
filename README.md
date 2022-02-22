@@ -2,7 +2,19 @@
 
 > [官网](https://pinia.vuejs.org/)
 
-## 安装pinia
+## 创建vite项目，也可以用vue-cli，选其一即可
+```bash
+npm install @vue/cli -g
+npm install vite -g
+npm install create-vite-app -g 
+
+vue create projectName
+npm init vite@latest
+yarn create vite
+create-vite-app projectName
+```
+
+## 可以单独安装pinia包依赖
 ```bash
 npm install pinia
 yarn add pinia
@@ -21,3 +33,9 @@ storeToRefs
   1. HelloWorld.vue，defaultStore
   2. BrandManagement.vue brandStore
 3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点23
+  - vue3回顾 与vue2对比
+    1. vue2 Observer vue3 proxy
+      defineReactive(Object.defineProperty) 
+      walk(Object.keys和forEach)
+    2. 静态标记
+      
