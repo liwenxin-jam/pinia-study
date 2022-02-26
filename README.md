@@ -36,6 +36,7 @@ storeToRefs
 
 3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点23
 - vue3回顾 与vue2对比
+
   - vue2 Observer vue3 proxy
     - defineReactive(Object.defineProperty) 
     - walk(Object.keys和forEach)
@@ -49,7 +50,9 @@ storeToRefs
     - 减少打包项
   - Hooks
     - setup语法糖
+
 - vue 虚拟dom diff算法
+
   - 无key：无key patch的时候会替换
   - 有key：
     1. 前序对比算法
@@ -59,4 +62,58 @@ storeToRefs
     5. 特殊情况乱序
   - 乱序
     - 循环递归遍历
+
+- 基本API
+
+  - ref、Ref、isRef、shallowRef、triggerRef、customRef
+
+    ```typescript
+    import { ref, Ref, isRef, shallowRef, customRef } from vue
+    let message = ref<string | number>('xx')
+    // 接收一个泛型
+    let message: Ref<string> = ref('xx')
+    // 赋值
+    message.value = 'change'
+    isRef(message) // true
+    
+    let info = shallowRef({ name: 'xx' })
+    // info.value是响应式，但里面的属性不是响应式
+    info.value.name = 'aa' // 无效
+    triggerRef(info) // 可以强制DOM更新，让上面赋值语句生效
+    info.value = { name: 'aa' } // 有效
+    
+    // 自定义Ref
+    function MyRef<T>(value: T) {
+      return customRef((trank, trigger) => {
+      	return {
+          get() {
+            trank() // 收集依赖
+            return value
+          },
+          set(newVal: T) {
+            value = newVal
+            trigger() // 触发更新
+          },
+        }
+    	})
+    }
+    let test = MyRef<string>('lai')
+    test.value = 'hello'
+    ```
+
+  - reactive
+
+    ```typescript
+    import { reactive } from vue
+    let message = reactive() // [] {} 接收复杂对象
+    // 注意数组直接赋值会破坏响应式
+    let arr = reactive<number[]>([])
+    setTimeout(() => {
+      let arr = [1, 2, 3, 4]
+      message = arr
+      console.log(message) // 值改变了，但页面没有实时同步刷新
+    }, 1000)
+    ```
+
+    
 
