@@ -34,7 +34,7 @@ storeToRefs
    1. HelloWorld.vue，defaultStore
    2. BrandManagement.vue brandStore
 
-3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点23
+3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点35
 
 - vue3回顾 与vue2对比
 
@@ -180,13 +180,13 @@ storeToRefs
     })
     ```
 
-  - watch
+  - watch、watchEffect
 
     ```typescript
     import { watch } from vue
     const message = ref('xx')
     const test = reactive({ info: a: { b: 1 }, bb: 'cc' })
-    // 支持监听多个 [message1, message2]，后面回调也是数组显示
+    // 支持监听多个 [message1, message2]，后面回调也是数组显示，值改变才会触发
     watch(message, (newVal, oldVal) => {
       console.log(newVal, oldVal)
     })
@@ -201,7 +201,36 @@ storeToRefs
     watch(() => test.bb, (newVal, oldVal) => {
       console.log(newVal, oldVal)
     }) 
+    
+    // watchEffect类似react的useEffect
+    watchEffect((oninvalidate)=> {
+      const ipt: HTMLInputElement = document.querySelector('#ipt') as HTMLInputElement
+      // 默认为null，需要借助flush post才能正常取到dom
+      console.log(ipt)
+      // 自动监听依赖项，非惰性，自动会调用一次
+      console.log('message==>', message1.value)
+      console.log('message==>', message2.value)
+      // 清除负作用
+      oninvalidate(()=> {
+        // 会优于内部逻辑处理，例如防抖
+        console.log('before')
+      })
+    }, {
+      flush: 'post',
+      // 依赖项改变触发，调试用
+      onTrigger(e) {
+        debugger
+      }
+    })
     ```
+
+  - 生命周期
+    1. onBeforeMount 创建之前
+    2. onMounted 创建完成
+    3. onBeforeUpdate 更新之前
+    4. onUpdated 更新完成
+    5. onBeforeUnmount 卸载之前
+    6. onUnmounted 卸载完成
 
     
 
