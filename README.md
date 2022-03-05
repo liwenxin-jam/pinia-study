@@ -34,7 +34,9 @@ storeToRefs
    1. HelloWorld.vue，defaultStore
    2. BrandManagement.vue brandStore
 
-3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点35
+3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点39
+
+- [up博客](https://blog.csdn.net/qq1195566313?type=blog) 可以结合他的文章来看会更容易理解
 
 - vue3回顾 与vue2对比
 
@@ -362,13 +364,56 @@ storeToRefs
     </template>
     ```
 
-  - transition
+  - transition、transition-group
+
+    - 样式效果可以配合 [animate](https://animate.style/) JS动画可以配合 [gsap](https://www.tweenmax.com.cn/index.html)
+
+      - 样式类名参考
+
+      ```css
+      move-class="mmm" /** 平移过渡效果，例如loadsh的shuffle打乱数组方法配合flex垂直水平居中布局做一个数字打乱的效果 */
+      .mmm {
+      	transition: all 1s;
+      }
+      ```
 
     - 生命周期
+
       - beforeEnter 进入之前
-      - enter 过渡曲线
-      - afterEnter 过渡完成
-      - enterCancelled 过渡效果被打断
+      - enter 进入过渡曲线(有done回调)
+      - afterEnter 进入完成
+      - enterCancelled 进入过渡效果被打断
+      - leave 离开过渡曲线(有done回调)
+      - afterLeave 离开完成
+      - leaveCancelled 离开过渡效果被打断
+
+    - 数字滚动效果
+
+      ```vue
+      <template>
+      	<input v-model="num.current" step="20" type="number">
+      	<div>{{ num.tweenedNumber.toFixed(0) }}</div>
+      </template>
+      
+      <script setup lang="ts">
+      import { reactive, watch } from 'vue'
+      import gsap from 'gsap'
+        
+      const num = reactive({
+        current: 0,
+        tweenedNumber: 0
+      })
+      
+      watch(()=>num.current, (newVal, oldVal)=> {
+        gsap.to(num, {
+          duration: 1,
+          tweenedNumber: newVal
+        })
+      })
+      </script>
+      ```
+
+  - todo
 
     
 
