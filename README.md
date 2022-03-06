@@ -34,7 +34,7 @@ storeToRefs
    1. HelloWorld.vue，defaultStore
    2. BrandManagement.vue brandStore
 
-3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点39
+3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点41
 
 - [up博客](https://blog.csdn.net/qq1195566313?type=blog) 可以结合他的文章来看会更容易理解
 
@@ -412,6 +412,116 @@ storeToRefs
       })
       </script>
       ```
+
+  - tsx
+
+    ```js
+    // 安装依赖
+    npm install @vitejs/plugin-vue-jsx -D
+    
+    // vite.config.ts 配置
+    import vue from '@vitejs/plugin-vue'
+    import vueJsx from '@vitejs/plugin-vue-jsx'
+    // https://vitejs.dev/config/
+    export default defineConfig({
+      plugins: [vue(), vueJsx()]
+    })
+    
+    // tsconfig.json
+    "compilerOptions": {
+      "jsx": "preserve",
+      "jsxFactory": "h",
+      "jsxFragmentFactory": "Fragment",
+    }
+    
+    // JSX语法参照react
+    Arr.map(v => {
+      return (<div onClick={clickTap.bind(this,v)} data-index={v}>{v}</div>)
+    })
+    ```
+
+  - vue3自动引入插件 [github地址](https://github.com/antfu/unplugin-auto-import)
+
+    ```js
+    unplugin-auto-import/vite
+    // 配置完成之后使用ref reactive watch等无须import导入，可以直接使用
+    import AutoImport from 'unplugin-auto-import/vite'
+    export default defineConfig({
+      plugins: [vue(), vueJsx(), AutoImport({
+        imports: ['vue'],
+        dts: 'src/auto-import.d.ts'
+      })]
+    })
+    
+    // tsconfig.json
+    "include": ['src/**/*.ts', 'src/**/*.d.ts', 'src/**/*.tsx', 'src/**/*.vue']
+    ```
+
+  - v-model
+
+    ```typescript
+    // 语法糖对比 value->modelValue input->update:modelValue
+    v-model.xx="status"
+    v-model:title.xx="status"
+    
+    type Props = {
+      modelValue: boolean,
+      title: string,
+      // 自定义修饰符，注意修饰符前缀要保持一致
+      modelModifiers?: {
+        xx: boolean
+      },
+      titleModifiers?: {
+        xx: boolean
+      }
+    }
+    const PropsData = defineProps<Props>()
+    const emit = defineEmits(['update:modelValue', 'update:title'])
+    const close = () => {
+      if (PropsData.modelModifiers?.xx) {
+        // todo
+      } else {
+        // todo
+      }
+      emit('update:modelValue', false)
+      emit('update:title', '改变标题')
+    }
+    ```
+
+  - 自定义指令 Directive、DirectiveBinding
+
+    - created 元素初始化的时候
+    - beforeMount 元素初始化的时候
+    - mounted 指令绑定到元素后调用 只调用一次
+    - beforeUpdate 元素插入父级dom调用
+    - update 这个周期方法被移除 改用updated
+    - beforeUnmount 在元素被移除前调用
+    - unmounted 指令被移除后调用 只调用一次
+
+    ```typescript
+    <Comp v-mode:aaa.xx="{ background: 'red' }"></Comp>
+    
+    import { Directive, DirectiveBinding } from 'vue'
+    type Dir = {
+      background: string
+    }
+    const vMove: Directive = {
+      created(...args: Array<any>) {
+        console.log(args)
+      },
+      mounted(el: HTMLElement, bingding: DirectiveBinding<Dir>) {
+        console.log(bingding.value.background)
+      }
+    }
+    
+    // 简写方式
+    <input v-model="value" />
+    <Comp v-move="{ background:value }"></Comp>
+    
+    const vMove: Directive = (el: HTMLElement, bingding: DirectiveBinding<Dir>) => {
+      el.style.background = bingding.value.background
+    }
+    ```
 
   - todo
 
