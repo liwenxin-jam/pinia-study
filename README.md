@@ -523,7 +523,32 @@ storeToRefs
     }
     ```
 
-  - todo
+  - 全局函数和变量
 
+    ```typescript
+    // vue2
+    Vue.prototype.$http = () => {}
+    // vue3
+    const app = createApp({})
+    app.config.globalProperties.$http = () => {}
     
+    // vue3去除了filters，需要自己手动添加
+    app.config.globalProperties.$filters = {
+      format <T>(str: T): string {
+        return `真${str}`
+      }
+    }
+    // 需要声明
+    type Filter = { 
+    	format: <T extends any>(str: T) => T
+    }
+    // 声明要扩充@vue/runtime-core包的声明
+    // 这里扩充“ComponentCustomProperties”接口，因为它是vue3中实例的属性的类型
+    declare module '@vue/runtime-core' {
+      export interface ComponentCustomProperties {
+        $filters: Filter
+      }
+    }
+    ```
 
+  - todo
