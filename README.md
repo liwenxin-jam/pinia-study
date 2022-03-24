@@ -106,6 +106,41 @@ storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 
   }, true) // 第二个参数为true，当组件销毁可以继续监听
   ```
 
+- 持久化
+
+  ```tsx
+  import { createPinia, PiniaPluginContext } from 'pinia'
+  
+  type Options = {
+    key?: string
+  }
+  
+  const __piniaKey__: string = 'xx'
+  
+  const setStorage = (key: string, value: any) => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+  
+  const getStorage = (key: string) => {
+    return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key) as string) : {}
+  }
+  
+  const piniaPlugin = (options: Options) => {
+    return (context:PiniaPluginContext) => {
+      const { store } = context
+      store.$subscribe(() => {
+        console.log('change')
+        setStorage(`${options?.key ?? __piniaKey__}-${store.$id}`, toRaw(store.$state))
+      })
+    }
+  }
+  const store = createPinia({
+    key: 'pinia',
+    
+  })
+  store.use(piniaPlugin)
+  ```
+
 - 参考资料
 1. 基于B站[抛弃 Vuex，使用 Pinia](https://www.bilibili.com/video/BV11Y411b7nb?p=1)，打卡点11 HelloWorld.vue，mainStore
 
