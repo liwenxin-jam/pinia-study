@@ -22,10 +22,89 @@ yarn add pinia
 
 ## API
 ```js
-createPinia
+// vue3用createPinia vue2用PiniaVuePlugin
+createPinia // 1. const store = createPinia() 2. createApp(App).use(store)
+// 初始化仓库
 defineStore
-storeToRefs
+// 解构响应式数据  const { current, name } = storeToRefs(Test)
+storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 不具有响应式
 ```
+
+- Pinia.js有如下特点：
+
+  - 完整的ts的支持；
+  - 足够轻量，压缩后的体积只有1kb左右；
+  - 去除mutations，只有state，getters，actions；
+  - actions支持同步和异步；
+  - 代码扁平化没有模块嵌套，只有store的概念，store之间可以自由使用，每一个store都是独立的
+  - 无需手动添加store，store一旦创建便会自动添加；
+  - 支持Vue和Vue2；
+
+- 初始化仓库
+
+  ```typescript
+  import { defineStore } from 'pinia'
+  import { Names } from './store-name'
+  
+  export const useTestStore = defineStore(Names.TEST, {
+    state: () => {
+      return {
+        current: 1,
+        name: 'xx'
+      }
+    },
+    // computed 修饰一些值
+    getters: {
+      
+    },
+    // methods 可以做同步、异步，提交state
+    actions: {
+      // 注意：不能使用箭头函数定义 action
+      changeState(num: number) {
+        // 1. 直接修改导出来的模块state
+        this.current += num
+        this.name = 'bar'
+        this.arr.push(4)
+        
+  			// 2.1利用$patch
+        // this.$patch({})
+        
+        // 2.2利用$patch的工厂函数
+        // this.$patch(state => {})
+      },
+    }
+  })
+  ```
+
+- 引入Store
+
+  ```tsx
+  // <p>{{ Test.current }}-{{ Test.name }}</p> 
+  import { useTestStore } from './store'
+  
+  const Test = useTestStore()
+  ```
+
+- $reset、$subscribe、$onAction
+
+  ```tsx
+  // 重置state的值
+  Test.$reset()
+  // 任何一个state值有变化都会触发
+  Test.$subscribe((args, state) => {
+    console.log(args)
+    console.log(state)
+  }, {
+    detached: true, // 跟$onAction第二个参数为true效果一致
+    // 跟watchEffect效果保持一致
+    deep: true, // 开启深度监听
+    flush: 'post', // 需要借助flush post才能正常取到dom
+  })
+  // 调用任一action就会触发
+  Test.$onAction((args) => {
+    console.log(args)
+  }, true) // 第二个参数为true，当组件销毁可以继续监听
+  ```
 
 - 参考资料
 1. 基于B站[抛弃 Vuex，使用 Pinia](https://www.bilibili.com/video/BV11Y411b7nb?p=1)，打卡点11 HelloWorld.vue，mainStore

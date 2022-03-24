@@ -58,11 +58,15 @@ export const useMainStore = defineStore('main', {
   actions: {
     // 注意：不能使用箭头函数定义 action
     changeState(num: number) {
+      // 1. 直接修改导出来的模块state
       this.count += num
       this.foo = 'bar'
       this.arr.push(4)
 
+      // 2.1利用$patch
       // this.$patch({})
+      
+      // 2.2利用$patch的工厂函数
       // this.$patch(state => {})
     },
   },
