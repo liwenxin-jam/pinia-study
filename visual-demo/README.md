@@ -1,6 +1,9 @@
 # visual-demo
 
-- 可视化界面，接口数据来源于根目录下的node-demo。其中用了摸鱼神器json2ts(快捷键 ctrl+alt+v)
+- 可视化界面，接口数据来源于根目录下的node-demo。
+- 摸鱼神器
+  1. json2ts (快捷键 ctrl+alt+v)
+  2. json to ts (快捷键 ctrl+shift+alt+s)
 
 ## 构建项目
 ```sh
