@@ -148,7 +148,7 @@ storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 
    1. HelloWorld.vue，defaultStore
    2. BrandManagement.vue brandStore
 
-3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点60
+3. 基于B站[Vue3 + vite + Ts + pinia + 实战 + 源码](https://www.bilibili.com/video/BV1dS4y1y7vd?p=1)，打卡点61
 
 - [up博客](https://blog.csdn.net/qq1195566313?type=blog) 可以结合他的文章来看会更容易理解
 
