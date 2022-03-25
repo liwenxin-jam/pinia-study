@@ -1,15 +1,74 @@
 <template>
-  <!-- <div class="box" :style="{ background: `url(${bg}) center 0 no-repeat` }"> -->
-  <div class="box">
-    <!-- <div class="box-left"></div> -->
+  <div class="box" :style="{ background: `url(${bg}) center 0 no-repeat` }">
+    <div class="box-left" style="color: white">
+      <div class="box-left-card">
+        <section>
+          <div>较上日+ {{ store.chinaAdd.localConfirmH5 }}</div>
+          <div>{{ store.chinaTotal.localConfirm }}</div>
+          <div>本土现有确诊</div>
+        </section>
+        <section>
+          <div>较上日+ {{ store.chinaAdd.nowConfirm }}</div>
+          <div>{{ store.chinaTotal.nowConfirm }}</div>
+          <div>现有确诊</div>
+        </section>
+        <section>
+          <div>较上日+ {{ store.chinaAdd.confirm }}</div>
+          <div>{{ store.chinaTotal.confirm }}</div>
+          <div>累计确诊</div>
+        </section>
+        <section>
+          <div>较上日+ {{ store.chinaAdd.noInfect }}</div>
+          <div>{{ store.chinaTotal.noInfect }}</div>
+          <div>无症状感染者</div>
+        </section>
+        <section>
+          <div>较上日+ {{ store.chinaAdd.importedCase }}</div>
+          <div>{{ store.chinaTotal.importedCase }}</div>
+          <div>境外输入</div>
+        </section>
+        <section>
+          <div>较上日+ {{ store.chinaAdd.dead }}</div>
+          <div>{{ store.chinaTotal.dead }}</div>
+          <div>累计死亡</div>
+        </section>
+      </div>
+      <div class="box-left-pie"></div>
+      <div class="box-left-line"></div>
+    </div>
     <div id="china" class="box-center"></div>
-    <!-- <div class="box-right"></div> -->
+    <div class="box-right" style="color: white">
+      <table class="table" cellspacing="0" border="1">
+        <thead>
+          <tr>
+            <th>地区</th>
+            <th>新增确诊</th>
+            <th>累计确诊</th>
+            <th>治愈</th>
+            <th>死亡</th>
+          </tr>
+        </thead>
+        <transition-group
+          enter-active-class="animate__animated animate__flipInY"
+          tag="tbody"
+        >
+          <tr v-for="item in store.item" :key="item.name">
+            <td>{{ item.name }}</td>
+            <td>{{ item.today.confirm }}</td>
+            <td>{{ item.total.confirm }}</td>
+            <td>{{ item.total.confirm }}</td>
+            <td>{{ item.total.dead }}</td>
+          </tr>
+        </transition-group>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import * as echarts from 'echarts' // echarts 5
+import 'animate.css' // https://animate.style/
 import { useStore } from './stores'
 import './assets/china'
 import bg from './assets/bg.jpg'
@@ -19,13 +78,24 @@ const store = useStore()
 
 onMounted(async () => {
   await store.getList()
+  initCharts()
+  initPie()
+  initLine()
+})
+
+// https://www.isqqw.com/echartsdetail?id=15158
+const initCharts = () => {
   const city = store.list.diseaseh5Shelf.areaTree[0].children
-  const data = city.filter(c => geoCoordMap[c.name]).map(v => {
-    return {
-      name: v.name,
-      value: geoCoordMap[v.name].concat(v.total.nowConfirm)
-    }
-  })
+  store.item = city[1].children
+  const data = city
+    .filter(c => geoCoordMap[c.name])
+    .map(v => {
+      return {
+        name: v.name,
+        value: geoCoordMap[v.name].concat(v.total.nowConfirm),
+        children: v.children,
+      }
+    })
 
   const charts = echarts.init(document.querySelector('#china') as HTMLElement)
   // demo来源 https://www.isqqw.com/homepage
@@ -138,7 +208,7 @@ onMounted(async () => {
           formatter(value: any) {
             // console.log(value)
             return value.data.value[2]
-          }
+          },
           // },
         },
         itemStyle: {
@@ -150,7 +220,88 @@ onMounted(async () => {
       },
     ],
   })
-})
+  charts.on('click', (e: any) => {
+    console.log(e)
+    store.item = e.data.children
+  })
+}
+
+// https://echarts.apache.org/examples/zh/editor.html?c=pie-borderRadius
+const initPie = () => {
+  const charts = echarts.init(
+    document.querySelector('.box-left-pie') as HTMLElement
+  )
+  charts.setOption({
+    backgroundColor: '#223651',
+    tooltip: {
+      trigger: 'item',
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['40%', '70%'],
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+        label: {
+          show: true,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '15',
+          },
+        },
+        data: store.cityDetail.map(v => ({
+          name: v.city,
+          value: v.nowConfirm,
+        })),
+      },
+    ],
+  })
+}
+
+// https://echarts.apache.org/examples/zh/editor.html?c=line-smooth
+const initLine = () => {
+  const charts = echarts.init(
+    document.querySelector('.box-left-line') as HTMLElement
+  )
+  charts.setOption({
+    backgroundColor: '#223651',
+    tooltip: {
+      trigger: 'axis',
+    },
+    xAxis: {
+      type: 'category',
+      data: store.cityDetail.map(v => v.city),
+      axisLine: {
+        lineStyle: {
+          color: '#fff',
+        },
+      },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: {
+        lineStyle: {
+          color: '#fff',
+        },
+      },
+    },
+    label: {
+      show: true,
+    },
+    series: [
+      {
+        data: store.cityDetail.map(v => v.nowConfirm),
+        type: 'line',
+        smooth: true,
+      },
+    ],
+  })
+}
 </script>
 
 <style lang="less">
@@ -158,6 +309,9 @@ onMounted(async () => {
   padding: 0;
   margin: 0;
 }
+@itemColor: #41b0db;
+@itemBg: #223651;
+@itemBorder: #212028;
 html,
 body,
 #app {
@@ -170,14 +324,56 @@ body,
   overflow: hidden;
   &-left {
     width: 400px;
-    background: red;
+    &-card {
+      display: grid;
+      // 定义每一列的列宽 3列
+      grid-template-columns: auto auto auto;
+      // 定义每一行的行高 2行
+      grid-template-rows: auto auto;
+      section {
+        background: @itemBg;
+        border: 1px solid @itemBorder;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        div:nth-child(2) {
+          color: @itemColor;
+          padding: 6px 0;
+          font-size: 20px;
+          font-weight: bold;
+        }
+      }
+    }
+    &-pie {
+      height: 250px;
+      margin-top: 15px;
+    }
+    &-line {
+      height: 250px;
+      margin-top: 15px;
+    }
   }
   &-center {
     flex: 1;
   }
   &-right {
     width: 400px;
-    background: green;
+  }
+}
+.table {
+  width: 100%;
+  background: #212028;
+  tr {
+    th {
+      padding: 4px;
+      white-space: nowrap;
+    }
+    td {
+      padding: 4px 6px;
+      width: 100px;
+      white-space: nowrap;
+    }
   }
 }
 </style>
