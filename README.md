@@ -665,4 +665,69 @@ storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 
     }
     ```
 
-  - todo
+  - 样式穿透 scoped
+
+    - 主要针对第三方组件样式覆盖问题
+
+    ```scss
+    .wrapper {
+    	\deep\ .box {
+    		color: red;
+    	}
+      :deep(.box) {
+        color: red;
+      }
+      ::v-deep(.box) {
+        color: red;
+      }
+    }
+    ```
+
+  - Router
+
+    - 构建前端项目
+
+      ```bash
+      # 有模板
+      npm init vue@latest
+      # 无模板
+      npm init vite@latest 
+      ```
+
+  - 摸鱼神器
+
+    1. json2ts (快捷键 ctrl+alt+v)
+    2. json to ts (快捷键 ctrl+shift+alt+s)
+
+  - 查找文件路径
+
+    ```js
+    // 方式1 path __dirname
+    const path = require('path');
+    const resolve = (dir) => path.join(__dirname, dir); // 路径
+    resolve('src/assets/icons')
+    
+    // 方式2 url fileURLToPath
+    import { fileURLToPath, URL } from 'url'
+    fileURLToPath(new URL('./src', import.meta.url))
+    ```
+
+  - definExpose
+
+    ```TSX
+    // 在vue3.x的setup语法糖中定义的变量默认不会暴露出去，这时使用definExpose({ })来暴露组件内部属性给父组件使用
+    // 子组件
+    <script setup>
+        let aaa = ref("aaa")
+        defineExpose({ aaa });
+    </script>
+    // 父组件
+    <Chlid ref="child"></Chlid>
+    <script setup>
+        let child = ref(null)
+        child.value.aaa //获取子组件的aaa
+    </script>
+    // 在父组件中直接修改子组件的属性，子组件也会相应更新
+    ```
+
+    
