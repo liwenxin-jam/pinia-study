@@ -694,6 +694,160 @@ storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 
       npm init vite@latest 
       ```
 
+    - 全局守卫 beforeEach 、afterEach
+
+      - 自定义loadingBar组件
+
+      ```vue
+      <template>
+      	<div class="wraps">
+          <div ref="bar" class="bar"></div>
+        </div>
+      </template>
+      
+      <script setup lang="ts">
+      import { ref, onMounted } from 'vue'
+      let speed = ref<number>(1)
+      let bar = ref<HTMLElement>()
+      let timer = ref<number>(0)
+      const startloading = () => {
+        let dom = bar.value as HTMLElement
+        speed.value = 1
+        timer.value = window.requestAnimationFrame(function fn() {
+          if(speed.value < 90) {
+            speed.value += 1
+            dom.style.width = speed.value + '%'
+            timer.value = window.requestAnimationFrame(fn)
+          } else {
+            speed.value = 1
+            window.clearAnimationFrame(timer.value)
+          }
+        })
+      }
+      
+      const endLoading(() => {
+        let dom = bar.value as HTMLElement
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            speed.value = 100
+            dom.style.width = speed.value + '%'
+          })
+        }, 1000)
+      })
+        
+      defineExpose({
+        startloading,
+        endLoading
+      })
+      </script>
+      
+      <style scoped land="less">
+        .wraps {
+          position: fixed;
+          top: 0;
+          width: 100%;
+          height: 2px;
+          .bar {
+            height: inherit;
+            width: 0;
+            background: blue;
+          }
+        }
+      </style>
+      ```
+
+      - Router文件
+
+      ```tsx
+      declare module 'vue-router' {
+        interface RouteMeta {
+          title: string,
+          transition: string
+        }
+      }
+      
+      const router = createRouter({
+        history: createWebHistory(import.meta.env.BASE_URL),
+        // 滚动行为
+        scrollBehavior: (to, from, savePosition) => {
+          // 后退保留原先滚动行为高度
+          if (savePosition) {
+            return savePosition
+          } else {
+            return new Promise(r => {
+              setTimeout(() => {
+                r({
+                  top: 100000
+                })
+              }, 2000)
+            }
+          }
+        },
+        routes: [
+          {
+            path: '/',
+            component: () => import('@/views/Login.vue'),
+            meta: {
+              title: "登录页面",
+              transition: "animate__fadeIn"
+            }
+          }
+        ]
+      })
+      ```
+
+      - 加载文件效果
+
+      ```tsx
+      import loadingBar from './components/loadingBar.vue'
+      
+      const Vnode = createVNode(loadingBar)
+      // 挂载
+      render(Vnode, document.body)
+      
+      router.beforeEach(to, from, next) => {
+        document.title = to.meta.title
+        Vnode.component?.exposed?.startLoading()
+      }
+      router.afterEach(to, from, next) => {
+        Vnode.component?.exposed?.endLoading()
+      }
+      ```
+
+      - 动画展示
+
+      ```vue
+      <template>
+      	<router-view #default="{route, Component}">
+          <transition :enter-active-class="`animate__animated ${router.meta.transition}`">
+            <component :is="Component"></component>
+        </transition>
+        </router-view>
+      </template>
+      
+      <script setup lang="ts">
+      import 'animate.css'
+      </script>
+      ```
+
+      - 动态路由
+
+      ```tsx
+      const initRouter = async () => {
+        // 登录返回可以访问的路由信息
+        const result = await axios.get('https://localhost:9999/login', { params: formInline })
+        result.data.route.forEach((v: any) => {
+          router.addRoute({
+            path: v.path,
+            name: v.name,
+            // 只能使用相对路径，不能使用别名如@
+            component: () => import(`../views/${v.component}`)
+          })
+        })
+        router.push('/')
+      }
+      ```
+
   - 摸鱼神器
 
     1. json2ts (快捷键 ctrl+alt+v)
@@ -729,5 +883,98 @@ storeToRefs // 1. const Test = useTestStore() 2. const { current, name } = Test 
     </script>
     // 在父组件中直接修改子组件的属性，子组件也会相应更新
     ```
+
+- PM2
+
+  - 初始化
+
+    ```bash
+    # 创建文件夹
+    mkdir pm2
+    cd pm2
+    # 创建文件
+    echo >index.js
+    echo >index2.js
+    # 看目录
+    dir
+    ls
+    # 初始化
+    npm init -y
+    # 安装依赖
+    yarn add express
+    ```
+
+  - index.js
+
+    ```js
+    const express = require('express')
+    
+    const app = express()
+    
+    app.get('/index', (req, res) => {
+      res.json({
+        code: 200,
+        message: 'Hello Wrold！'
+      })
+    })
+    
+    app.listener(9999, () => {
+      console.log('index.js=====>', 'htpp://localhost:9999/index')
+    })
+    ```
+
+  - index2.js
+
+    ```js
+    const express = require('express')
+    
+    const app = express()
+    
+    app.get('/index', (req, res) => {
+      res.json({
+        code: 200,
+        message: 'Hello Express！'
+      })
+    })
+    
+    app.listener(8888, () => {
+      console.log('index2.js=====>', 'htpp://localhost:8888/index')
+    })
+    ```
+
+  - 常用命令
+
+    ```bash
+    npm install pm2 -g
+    pm2 -v
+    # 启动命令
+    pm2 start index.js
+    # 自动监听
+    pm2 start index.js --watch
+    # 多线程 负载均衡 
+    # const os = require('os')
+    # os.cpus()
+    pm2 start index.js --watch -i max
+    # 查看日志
+    pm2 log
+    pm2 list
+    # 停止某个服务 0是list表格中的id
+    pm2 stop 0
+    # 重启服务
+    pm2 restart 0
+    # 删除服务
+    pm2 delete 0
+    
+    # npmrc 直接设置代理 
+    registry=https://registry.npm.taobao.org
+    # 安装临时指定代理
+    npm install data_js --registry=https://registry.npm.taobao.org
+    # 全局配置
+    npm config set registry https://registry.npm.taobao.org
+    # 查看刚才的配置是否生效
+    npm config list
+    ```
+
+    
 
     
